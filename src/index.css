@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+#root {
+  width: 1500px;
+  max-width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: #16171d;
+  color: #eee;
+  padding: 50px;
+}
+
+.cell {
+  position: relative;
+  border: solid 1px;
+  padding: 10px 0px;
+}
+
+.resizer {
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 15px;
+  background: blue;
+  border-radius: 1px;
+}
+
+.resizer.isResizing {
+  background: greenyellow;
+  opacity: 1;
+}
+
+*:hover > .resizer {
+  opacity: 1;
+}
