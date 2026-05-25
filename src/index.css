@@ -18,12 +18,6 @@ body {
   padding: 50px;
 }
 
-.cell {
-  position: relative;
-  border: solid 1px;
-  padding: 10px 0px;
-}
-
 .resizer {
   position: absolute;
   opacity: 0;
