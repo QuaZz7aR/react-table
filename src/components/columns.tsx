@@ -6,49 +6,58 @@ const columnHelper = createColumnHelper<User>();
 const columns = [
 
     columnHelper.accessor('id', {
-        header: () => <span>ID</span>,
+        header: "ID",
         cell: info => info.getValue(),
         minSize: 120,
         size: 120,
     }),
 
     columnHelper.accessor('firstName', {
-        header: () => <span>First Name</span>,
+        header: "First Name",
         cell: info => info.getValue(),
         minSize: 180,
         size: 300,
     }),
 
     columnHelper.accessor("lastName", {
-        header: () => <span>Last Name</span>,
+        header: "Last Name",
         cell: info => info.getValue(),
         minSize: 180,
         size: 300,
     }),
 
     columnHelper.accessor("email", {
-        header: () => <span>Email</span>,
+        header: "Email",
         cell: info => info.getValue(),
         minSize: 300,
         size: 300,
     }),
 
     columnHelper.accessor("age", {
-        header: () => <span>Age</span>,
+        header: "Age",
         cell: info => info.getValue(),
         minSize: 120,
         size: 120,
     }),
 
-    columnHelper.accessor("department", {
-        header: () => <span>Department</span>,
+    columnHelper.accessor(row => row.company.department, {
+        id: "department",
+        header: "Department",
+        cell: info => info.getValue(),
+        minSize: 300,
+        size: 300,
+    }),
+
+    columnHelper.accessor(row => row.company.title, {
+        id: "title",
+        header: "Title",
         cell: info => info.getValue(),
         minSize: 300,
         size: 300,
     }),
 
     columnHelper.accessor("role", {
-        header: () => <span>Role</span>,
+        header: "Role",
         cell: info => info.getValue(),
         minSize: 300,
         size: 300,

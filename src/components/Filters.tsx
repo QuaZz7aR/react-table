@@ -14,8 +14,8 @@ function Filters({ setColumnFilters }: FilterProps) {
     }
 
     return <div className="flex gap-2">
-        <input type="text" placeholder="Task name" className="rounded-lg border py-1 px-2 mx-0.5" ref={filterRef} />
-        <button type="button" onClick={() => onFilterChange("task", filterRef.current?.value ?? "")}
+        <input type="text" placeholder="Enter a first name" className="rounded-lg border py-1 px-2 mx-0.5" ref={filterRef} />
+        <button type="button" onClick={() => onFilterChange("firstName", filterRef.current?.value ?? "")}
             className="border-white border px-3 py-1 hover:cursor-pointer rounded-lg text-gray-400 hover:text-white">Find</button>
     </div>
 }

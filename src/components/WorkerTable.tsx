@@ -41,18 +41,12 @@ function WorkerTable() {
 
     if (isLoading) return <div>Data is fetching...</div>;
     if (error) return <div>Error occured while fetching data</div>;
-    
+
     return (
         <>
             <div className="max-w-full overflow-x-auto">
                 <div className="flex gap-6 pb-4 pt-1 w-3/4">
                     <Filters setColumnFilters={setColumnFilters} />
-                    {table.getAllColumns().map(col => (
-                        <label key={col.id}>
-                            <input type="checkbox" checked={col.getIsVisible()} onChange={col.getToggleVisibilityHandler()} />
-                            {col.id}
-                        </label>
-                    ))}
                 </div>
                 <table style={{ tableLayout: "fixed", width: table.getTotalSize() }} >
                     <thead>
@@ -100,6 +94,14 @@ function WorkerTable() {
                     {" "}of{" "}
                     {table.getPageCount()}
                 </span>
+                <div className="pl-5 flex gap-5">
+                    {table.getAllColumns().map(col => (
+                        <label key={col.id} className="flex gap-1 items-center">
+                            <input type="checkbox" checked={col.getIsVisible()} onChange={col.getToggleVisibilityHandler()} />
+                            {col.columnDef.header as string}
+                        </label>
+                    ))}
+                </div>
             </div>
 
         </>
