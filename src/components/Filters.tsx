@@ -1,23 +1,42 @@
-import type { ColumnFiltersState } from "@tanstack/react-table";
-import { useRef, type Dispatch, type SetStateAction } from "react";
+import { useRef, useState, type ChangeEvent, type Dispatch, type SetStateAction } from "react";
 
 type FilterProps = {
-    setColumnFilters: Dispatch<SetStateAction<ColumnFiltersState>>
+    search: string,
+    setSearch: Dispatch<SetStateAction<string>>
 }
 
-function Filters({ setColumnFilters }: FilterProps) {
+function Filters({ search, setSearch }: FilterProps) {
 
-    const filterRef = useRef<HTMLInputElement>(null);
+    const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
+    const [localSearch, setLocalSearch] = useState(search);
 
-    function onFilterChange(id: string, value: string) {
-        setColumnFilters(prev => [...prev.filter(f => f.id !== id), { id, value }]);
+    function onNameFilterChange(e: ChangeEvent<HTMLInputElement>) {
+        setLocalSearch(e.target.value);
+        if (debounceRef.current) {
+            clearTimeout(debounceRef.current);
+        }
+
+        const value = e.target.value;
+
+        debounceRef.current = setTimeout(() => {
+
+            setSearch(value);
+        }, 500);
+
     }
 
-    return <div className="flex gap-2">
-        <input type="text" placeholder="Enter a first name" className="rounded-lg border py-1 px-2 mx-0.5" ref={filterRef} />
-        <button type="button" onClick={() => onFilterChange("firstName", filterRef.current?.value ?? "")}
-            className="border-white border px-3 py-1 hover:cursor-pointer rounded-lg text-gray-400 hover:text-white">Find</button>
-    </div>
+    return (
+        <div className="flex gap-2">
+            <input
+                type="text"
+                placeholder="Search by name..."
+                value={localSearch}
+                onChange={onNameFilterChange}
+                className="rounded-lg border py-1 px-2 ml-1"
+            />
+        </div>
+    )
+
 }
 
 export default Filters;

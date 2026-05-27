@@ -1,4 +1,4 @@
-import { flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable, type ColumnFiltersState } from "@tanstack/react-table";
+import { flexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
 import { useState } from "react";
 import columns from "./columns"
 import Filters from "./Filters";
@@ -8,33 +8,36 @@ import type { User } from "./Types";
 
 function WorkerTable() {
 
-    const { data, isLoading, error } = useQuery({
-        queryKey: ["users"],
+    const [search, setSearch] = useState("");
+
+    const { data, isLoading, isFetching, error } = useQuery({
+        queryKey: ["users", search],
         queryFn: async () => {
-            const res = await fetch("https://dummyjson.com/users?limit=100");
+            const url = search
+                ? `https://dummyjson.com/users/search?q=${search}&limit=100`
+                : `https://dummyjson.com/users?limit=100`;
+            const res = await fetch(url);
             return res.json() as Promise<{ users: User[] }>;
-        }
+        },
+        placeholderData: previousData => previousData
     })
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
     const [pagination, setPagination] = useState({
         pageSize: 10,
         pageIndex: 0
     })
 
-
     const table = useReactTable({
         data: data?.users ?? [],
         columns,
         state: {
-            columnFilters,
             pagination
         },
-        getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         onPaginationChange: setPagination,
-        columnResizeMode: "onChange",
+        columnResizeMode: "onChange"
     });
 
     console.log(data);
@@ -45,8 +48,9 @@ function WorkerTable() {
     return (
         <>
             <div className="max-w-full overflow-x-auto">
-                <div className="flex gap-6 pb-4 pt-1 w-3/4">
-                    <Filters setColumnFilters={setColumnFilters} />
+                <div className="flex gap-6 pb-4 pt-1 w-3/4 items-center">
+                    <Filters search={search} setSearch={setSearch} />
+                    {isFetching && <span className="text-gray-400 text-sm">Updating...</span>}
                 </div>
                 <table style={{ tableLayout: "fixed", width: table.getTotalSize() }} >
                     <thead>
@@ -80,13 +84,14 @@ function WorkerTable() {
                         </tr>)}
                     </tbody>
                 </table>
-
             </div>
             <br />
             <div className="flex items-center gap-3">
                 <div className="flex">
-                    <button disabled={!table.getCanPreviousPage()} onClick={() => table.previousPage()} className="p-1 border rounded-l-md hover:cursor-pointer"><ArrowLeft size={18} /></button>
-                    <button disabled={!table.getCanNextPage()} onClick={() => table.nextPage()} className="p-1 border rounded-r-md hover:cursor-pointer"><ArrowRight size={18} /></button>
+                    <button disabled={!table.getCanPreviousPage()} type="button" onClick={() => table.previousPage()}
+                        className="p-1 border rounded-l-md hover:cursor-pointer"><ArrowLeft size={18} /></button>
+                    <button disabled={!table.getCanNextPage()} type="button" onClick={() => table.nextPage()}
+                        className="p-1 border rounded-r-md hover:cursor-pointer"><ArrowRight size={18} /></button>
                 </div>
                 <span className="text-left">
                     Page{" "}

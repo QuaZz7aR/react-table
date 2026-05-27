@@ -4,6 +4,9 @@ export type User = {
   lastName: string
   email: string
   age: number
-  department: string
+  company: {
+    department: string
+    title: string
+  }
   role: string
 }
