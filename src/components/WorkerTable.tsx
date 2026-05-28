@@ -1,5 +1,5 @@
 import { flexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import columns from "./columns"
 import Filters from "./Filters";
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpDown } from "lucide-react";
@@ -9,18 +9,49 @@ import type { User } from "./Types";
 function WorkerTable() {
 
     const [search, setSearch] = useState("");
+    const [department, setDepartment] = useState("");
+    const [role, setRole] = useState("");
 
-    const { data, isLoading, isFetching, error } = useQuery({
-        queryKey: ["users", search],
+    const { data: rawData, isLoading, isFetching, error } = useQuery({
+        queryKey: ["users", search, department, role],
         queryFn: async () => {
             const url = search
                 ? `https://dummyjson.com/users/search?q=${search}&limit=100`
                 : `https://dummyjson.com/users?limit=100`;
+
             const res = await fetch(url);
             return res.json() as Promise<{ users: User[] }>;
         },
         placeholderData: previousData => previousData
     })
+
+    const { data: allData } = useQuery({
+        queryKey: ["all-users"],
+        queryFn: async () => {
+            const res = await fetch(`https://dummyjson.com/users?limit=100`);
+            return res.json() as Promise<{ users: User[] }>;
+        },
+        staleTime: Infinity
+    })
+
+    const departments = useMemo(() => {
+        if (!allData?.users) return [];
+        return [... new Set(allData.users.map(user => user.company.department))].sort()
+    }, [allData])
+
+    const roles = useMemo(() => {
+        if (!allData?.users) return [];
+        return [... new Set(allData.users.map(user => user.role))].sort()
+    }, [allData])
+
+    const filteredUsers = useMemo(() => {
+        if (!rawData?.users) return [];
+        return rawData.users.filter(user => {
+            if (department && user.company.department !== department) return false;
+            if (role && user.role !== role) return false;
+            return true;
+        })
+    }, [rawData, department, role])
 
     const [pagination, setPagination] = useState({
         pageSize: 10,
@@ -28,7 +59,7 @@ function WorkerTable() {
     })
 
     const table = useReactTable({
-        data: data?.users ?? [],
+        data: filteredUsers ?? [],
         columns,
         state: {
             pagination
@@ -40,18 +71,17 @@ function WorkerTable() {
         columnResizeMode: "onChange"
     });
 
-    console.log(data);
-
     if (isLoading) return <div>Data is fetching...</div>;
     if (error) return <div>Error occured while fetching data</div>;
 
     return (
         <>
+            <div className="flex gap-6 pb-4 pt-1 w-3/4 items-center">
+                <Filters search={search} setSearch={setSearch} departments={departments}
+                    setDepartment={setDepartment} roles={roles} setRole={setRole} />
+                {isFetching && <span className="text-gray-400 text-sm">Updating...</span>}
+            </div>
             <div className="max-w-full overflow-x-auto">
-                <div className="flex gap-6 pb-4 pt-1 w-3/4 items-center">
-                    <Filters search={search} setSearch={setSearch} />
-                    {isFetching && <span className="text-gray-400 text-sm">Updating...</span>}
-                </div>
                 <table style={{ tableLayout: "fixed", width: table.getTotalSize() }} >
                     <thead>
                         {table.getHeaderGroups().map(headerGroup => <tr key={headerGroup.id}>
